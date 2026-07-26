@@ -23,11 +23,9 @@ jobs:
 
       - name: 📦 Install Flutter Dependencies
         run: flutter pub get
-        working-directory: advertiser
 
       - name: 🔨 Build Flutter Web Application
         run: flutter build web --release
-        working-directory: advertiser
 
       - name: 🚀 Deploy to Firebase Hosting (advertisersignange)
         uses: FirebaseExtended/action-hosting-deploy@v0
