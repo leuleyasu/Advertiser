@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import '../models/ad_campaign_model.dart';
 import '../models/organization_model.dart';
+import 'cloudinary_service.dart';
 
 class AdCampaignService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -113,7 +114,7 @@ class AdCampaignService {
         '✅ AdCampaignService: Campaign ${docRef.id} created successfully');
   }
 
-  /// Upload ad creative file to Firebase Storage
+  /// Upload ad creative file to Cloudinary (with fallback to Firebase Storage)
   Future<String> uploadAdMedia({
     required String fileName,
     required Uint8List fileBytes,
@@ -129,16 +130,26 @@ class AdCampaignService {
       throw Exception('User must be logged in to upload media');
     }
 
-    final ref = _storage.ref().child(
-        'advertiser_creatives/$userId/${DateTime.now().millisecondsSinceEpoch}_$fileName');
-    debugPrint('📁 AdCampaignService: Uploading to ${ref.fullPath}');
-
-    final metadata = SettableMetadata(contentType: mimeType);
-    final uploadTask = ref.putData(fileBytes, metadata);
-    final snapshot = await uploadTask;
-    final downloadUrl = await snapshot.ref.getDownloadURL();
-    debugPrint('✅ AdCampaignService: Media uploaded, URL: $downloadUrl');
-    return downloadUrl;
+    try {
+      debugPrint('☁️ AdCampaignService: Attempting Cloudinary Upload...');
+      final downloadUrl = await CloudinaryService.uploadMedia(
+        fileName: fileName,
+        fileBytes: fileBytes,
+        mimeType: mimeType,
+      );
+      debugPrint('✅ AdCampaignService: Cloudinary upload succeeded, URL: $downloadUrl');
+      return downloadUrl;
+    } catch (cloudinaryError) {
+      debugPrint('⚠️ Cloudinary upload failed ($cloudinaryError). Falling back to Firebase Storage...');
+      final ref = _storage.ref().child(
+          'advertiser_creatives/$userId/${DateTime.now().millisecondsSinceEpoch}_$fileName');
+      final metadata = SettableMetadata(contentType: mimeType);
+      final uploadTask = ref.putData(fileBytes, metadata);
+      final snapshot = await uploadTask;
+      final downloadUrl = await snapshot.ref.getDownloadURL();
+      debugPrint('✅ AdCampaignService: Firebase fallback uploaded, URL: $downloadUrl');
+      return downloadUrl;
+    }
   }
 
   /// Fetch dashboard metrics

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../../../core/config/constants.dart';
 import '../../../../core/utils/format_utils.dart';
+import 'signage_ad_preview.dart';
 
 class CampaignCreativeStep extends StatelessWidget {
   final PlatformFile? pickedFile;
@@ -32,18 +33,27 @@ class CampaignCreativeStep extends StatelessWidget {
           'Upload Advertisement Creative',
           style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         Text(
-          'Upload a banner image (JPEG/PNG) or a short video (MP4) to display on signage screen.',
+          'Upload a banner image (JPEG/PNG) or a short video (MP4) to display on Night Track TV screens.',
           style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 20),
+
+        // Live Night Track Signage Screen Preview Mockup
+        SignageAdPreviewWidget(
+          pickedFile: pickedFile,
+          mediaUrl: uploadedMediaUrl,
+          mediaType: mediaType,
+        ),
+        const SizedBox(height: 20),
+
         Center(
           child: Column(
             children: [
               if (pickedFile != null) ...[
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.04),
                     borderRadius: BorderRadius.circular(16),
@@ -55,7 +65,7 @@ class CampaignCreativeStep extends StatelessWidget {
                       Icon(
                         mediaType == 'video' ? Icons.video_collection_rounded : Icons.image_rounded,
                         color: primaryColor,
-                        size: 28,
+                        size: 26,
                       ),
                       const SizedBox(width: 12),
                       Column(
@@ -71,7 +81,7 @@ class CampaignCreativeStep extends StatelessWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(width: 20),
+                      const SizedBox(width: 16),
                       IconButton(
                         icon: const Icon(Icons.close, color: Colors.redAccent),
                         onPressed: onRemoveFile,
@@ -79,11 +89,11 @@ class CampaignCreativeStep extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
                 if (uploadedMediaUrl == null)
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white.withOpacity(0.08),
+                      backgroundColor: primaryColor,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
@@ -96,7 +106,7 @@ class CampaignCreativeStep extends StatelessWidget {
                             child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                           )
                         : const Icon(Icons.cloud_upload_outlined),
-                    label: Text(isUploading ? 'Uploading...' : 'Upload Media to Cloud'),
+                    label: Text(isUploading ? 'Uploading Media...' : 'Confirm & Upload to Cloud'),
                   )
                 else
                   const Row(
@@ -104,7 +114,7 @@ class CampaignCreativeStep extends StatelessWidget {
                     children: [
                       Icon(Icons.check_circle_rounded, color: Colors.greenAccent),
                       SizedBox(width: 8),
-                      Text('Media verified & ready.', style: TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold)),
+                      Text('Media uploaded & verified for Night Track TV.', style: TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold)),
                     ],
                   ),
               ] else
@@ -113,20 +123,20 @@ class CampaignCreativeStep extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                   child: Container(
                     width: double.infinity,
-                    height: 180,
+                    padding: const EdgeInsets.symmetric(vertical: 24),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.15),
+                      color: Colors.black.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.white.withOpacity(0.1), style: BorderStyle.none),
+                      border: Border.all(color: primaryColor.withOpacity(0.3), width: 1.5),
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.cloud_upload_rounded, size: 48, color: Colors.white.withOpacity(0.3)),
-                        const SizedBox(height: 12),
-                        const Text('Drag & Drop or Click to Select File', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 6),
-                        Text('Supports PNG, JPG, MP4 (Max 15MB)', style: TextStyle(color: Colors.white38, fontSize: 12)),
+                        Icon(Icons.cloud_upload_rounded, size: 42, color: primaryColor.withOpacity(0.8)),
+                        const SizedBox(height: 10),
+                        const Text('Click or Tap to Select Ad Media File', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 4),
+                        Text('Supports Banner Images (PNG, JPG) & Video Ads (MP4)', style: TextStyle(color: Colors.white38, fontSize: 12)),
                       ],
                     ),
                   ),

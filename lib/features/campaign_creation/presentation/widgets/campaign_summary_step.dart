@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/config/constants.dart';
 import '../../../../core/utils/format_utils.dart';
+import 'signage_ad_preview.dart';
 
 class CampaignSummaryStep extends StatelessWidget {
   final String? uploadedMediaUrl;
@@ -32,28 +33,12 @@ class CampaignSummaryStep extends StatelessWidget {
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 600;
 
-    final mediaWidget = (uploadedMediaUrl != null && mediaType == 'image')
-        ? ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image.network(
-              uploadedMediaUrl!,
-              width: isMobile ? 120 : 180,
-              height: isMobile ? 120 : 180,
-              fit: BoxFit.cover,
-            ),
-          )
-        : Container(
-            width: isMobile ? 120 : 180,
-            height: isMobile ? 120 : 180,
-            decoration: BoxDecoration(
-              color: Colors.white10,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Center(
-              child: Icon(Icons.video_collection,
-                  color: Colors.white54, size: 40),
-            ),
-          );
+    final mediaWidget = SignageAdPreviewWidget(
+      mediaUrl: uploadedMediaUrl,
+      mediaType: mediaType,
+      caption: title,
+      targetVenue: organizationName,
+    );
 
     final detailsWidget = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -67,38 +52,37 @@ class CampaignSummaryStep extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         Text(
-          'Target Organization: $organizationName',
+          'Target Venue: $organizationName',
           style: const TextStyle(
               color: primaryColor, fontSize: 13, fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 10),
         if (dateRange != null)
           Text(
-            'Dates: ${FormatUtils.formatDateRange(dateRange)}',
+            'Schedule Dates: ${FormatUtils.formatDateRange(dateRange)}',
             style: const TextStyle(color: Colors.white70, fontSize: 13),
           ),
         Text(
-          'Hours: ${startTime.format(context)} - ${endTime.format(context)}',
+          'Display Hours: ${startTime.format(context)} - ${endTime.format(context)}',
           style: const TextStyle(color: Colors.white70, fontSize: 13),
         ),
         Text(
-          'Frequency: Every $frequencyMinutes minutes for $displayDuration seconds',
+          'Loop Frequency: Every $frequencyMinutes minutes for $displayDuration seconds',
           style: const TextStyle(color: Colors.white70, fontSize: 13),
         ),
         const SizedBox(height: 16),
         Container(
-          padding: const EdgeInsets.symmetric(
-              horizontal: 16, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
             color: primaryColor.withOpacity(0.1),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: primaryColor.withOpacity(0.2)),
+            border: Border.all(color: primaryColor.withOpacity(0.25)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'ESTIMATED BUDGET',
+                'ESTIMATED CAMPAIGN BUDGET',
                 style: TextStyle(
                     color: Colors.white60,
                     fontSize: 10,
@@ -122,16 +106,21 @@ class CampaignSummaryStep extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Campaign Summary & Budget Estimation',
+          'Campaign Review & TV Signage Preview',
           style: TextStyle(
               color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Review how your ad banner/video will appear on venue screens via Night Track TV.',
+          style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12),
         ),
         const SizedBox(height: 16),
         isMobile
             ? Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Center(child: mediaWidget),
+                  mediaWidget,
                   const SizedBox(height: 16),
                   detailsWidget,
                 ],
@@ -139,9 +128,9 @@ class CampaignSummaryStep extends StatelessWidget {
             : Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  mediaWidget,
-                  const SizedBox(width: 24),
-                  Expanded(child: detailsWidget),
+                  Expanded(flex: 5, child: mediaWidget),
+                  const SizedBox(width: 20),
+                  Expanded(flex: 6, child: detailsWidget),
                 ],
               ),
       ],

@@ -12,6 +12,7 @@ import '../widgets/campaign_info_step.dart';
 import '../widgets/campaign_creative_step.dart';
 import '../widgets/campaign_schedule_step.dart';
 import '../widgets/campaign_summary_step.dart';
+import '../widgets/laki_payment_dialog.dart';
 
 class CreateCampaignWizard extends StatelessWidget {
   final AdCampaignService campaignService;
@@ -190,7 +191,7 @@ class _CreateCampaignWizardViewState extends State<_CreateCampaignWizardView> {
                             onPressed: () =>
                                 _onNextPressed(context, state, bloc),
                             child: Text(state.currentStep == 3
-                                ? 'Submit Request'
+                                ? 'Pay & Submit Campaign'
                                 : 'Continue'),
                           ),
                         ],
@@ -240,10 +241,20 @@ class _CreateCampaignWizardViewState extends State<_CreateCampaignWizardView> {
         bloc.add(const NextStepEvent());
       }
     } else {
-      bloc.add(SubmitCampaignEvent(
-        title: _titleController.text,
-        caption: _captionController.text,
-      ));
+      // Step 3: Trigger LakiPay Direct Checkout Dialog
+      showDialog(
+        context: context,
+        builder: (ctx) => LakiPaymentDialog(
+          amountETB: state.calculatedBudget,
+          campaignTitle: _titleController.text.trim(),
+          onPaymentSuccess: (txRef, medium) {
+            bloc.add(SubmitCampaignEvent(
+              title: _titleController.text,
+              caption: _captionController.text,
+            ));
+          },
+        ),
+      );
     }
   }
 

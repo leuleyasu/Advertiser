@@ -193,6 +193,8 @@ class CampaignCreationBloc extends Bloc<CampaignCreationEvent, CampaignCreationS
       endTime: stateToUpdate.endTime,
       selectedDays: stateToUpdate.selectedDays,
       frequencyMinutes: stateToUpdate.frequencyMinutes,
+      mediaType: stateToUpdate.mediaType,
+      displayDurationSeconds: stateToUpdate.displayDuration,
     );
     return stateToUpdate.copyWith(calculatedBudget: budget);
   }
