@@ -59,59 +59,91 @@ class _AdvertiserDashboardView extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: backgroundColor,
-      appBar: AppBar(
-        backgroundColor: cardBackgroundColor,
-        elevation: 0,
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: primaryColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(Icons.campaign_rounded, color: primaryColor),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              isMobile ? 'Console' : 'Advertiser Console',
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                if (!isMobile) ...[
-                  Text(
-                    campaignService.currentUserEmail ?? '',
-                    style: TextStyle(
-                        color: Colors.white.withOpacity(0.6), fontSize: 13),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(isMobile ? 16 : 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Top Navigation Bar (Inline)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: primaryColor.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: primaryColor.withOpacity(0.3)),
+                        ),
+                        child: const Icon(Icons.campaign_rounded, color: primaryColor, size: 24),
+                      ),
+                      const SizedBox(width: 14),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'HoursSignage',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          Text(
+                            'Advertiser Portal',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.5),
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 16),
+                  Row(
+                    children: [
+                      if (!isMobile) ...[
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: cardBackgroundColor,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.white.withOpacity(0.08)),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.person_outline_rounded, color: primaryColor, size: 16),
+                              const SizedBox(width: 8),
+                              Text(
+                                campaignService.currentUserEmail ?? '',
+                                style: const TextStyle(color: Colors.white70, fontSize: 13),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                      ],
+                      IconButton(
+                        style: IconButton.styleFrom(
+                          backgroundColor: cardBackgroundColor,
+                          padding: const EdgeInsets.all(10),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        icon: const Icon(Icons.logout_rounded, color: Colors.redAccent, size: 20),
+                        tooltip: 'Sign Out',
+                        onPressed: () {
+                          context.read<AuthBloc>().add(const LogoutRequestedEvent());
+                        },
+                      ),
+                    ],
+                  ),
                 ],
-                IconButton(
-                  icon: const Icon(Icons.logout_rounded, color: Colors.redAccent),
-                  tooltip: 'Sign Out',
-                  onPressed: () {
-                    context.read<AuthBloc>().add(const LogoutRequestedEvent());
-                  },
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(isMobile ? 16 : 32),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+              ),
+              const SizedBox(height: 28),
             DashboardHeader(
               isMobile: isMobile,
               onNewCampaignPressed: () => _openCreateCampaignWizard(context),
