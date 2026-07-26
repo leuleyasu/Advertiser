@@ -40,16 +40,17 @@ class CloudinaryService {
       ));
 
     // 4. Send request to Cloudinary
+    final streamedResponse = await request.send();
     final response = await http.Response.fromStream(streamedResponse);
     final jsonMap = jsonDecode(response.body);
 
-    if (streamedResponse.statusCode == 200) {
+    if (response.statusCode == 200) {
       final secureUrl = jsonMap['secure_url'] as String;
       debugPrint('✅ CloudinaryService: Successfully uploaded! URL: $secureUrl');
       return secureUrl;
     } else {
       final errorMsg = jsonMap['error']?['message'] ?? 'Unknown Cloudinary error';
-      debugPrint('❌ CloudinaryService Upload Error (${streamedResponse.statusCode}): $errorMsg');
+      debugPrint('❌ CloudinaryService Upload Error (${response.statusCode}): $errorMsg');
       throw Exception('Cloudinary upload failed: $errorMsg');
     }
   }
