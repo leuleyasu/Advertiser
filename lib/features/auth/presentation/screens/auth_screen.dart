@@ -1,9 +1,11 @@
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../../../../core/config/constants.dart';
-import '../../cubit/auth_cubit.dart';
-import '../../cubit/auth_state.dart';
+import '../../bloc/auth_bloc.dart';
+import '../../bloc/auth_event.dart';
+import '../../bloc/auth_state.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -12,7 +14,8 @@ class AuthScreen extends StatefulWidget {
   State<AuthScreen> createState() => _AuthScreenState();
 }
 
-class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateMixin {
+class _AuthScreenState extends State<AuthScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final _formKeyLogin = GlobalKey<FormState>();
   final _formKeyRegister = GlobalKey<FormState>();
@@ -47,20 +50,24 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
 
   void _submitLogin() {
     if (_formKeyLogin.currentState!.validate()) {
-      context.read<AuthCubit>().login(
-            _emailLoginController.text,
-            _passwordLoginController.text,
+      context.read<AuthBloc>().add(
+            LoginSubmittedEvent(
+              email: _emailLoginController.text,
+              password: _passwordLoginController.text,
+            ),
           );
     }
   }
 
   void _submitRegister() {
     if (_formKeyRegister.currentState!.validate()) {
-      context.read<AuthCubit>().register(
-            email: _emailRegisterController.text,
-            password: _passwordRegisterController.text,
-            companyName: _companyController.text,
-            contactName: _contactNameController.text,
+      context.read<AuthBloc>().add(
+            RegisterSubmittedEvent(
+              email: _emailRegisterController.text,
+              password: _passwordRegisterController.text,
+              companyName: _companyController.text,
+              contactName: _contactNameController.text,
+            ),
           );
     }
   }
@@ -72,18 +79,22 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
 
     return Scaffold(
       backgroundColor: backgroundColor,
-      body: BlocListener<AuthCubit, AuthState>(
+      body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message, style: const TextStyle(color: Colors.white)),
-                backgroundColor: Colors.redAccent,
-                behavior: SnackBarBehavior.floating,
-                margin: const EdgeInsets.all(16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            final snackBar = SnackBar(
+              elevation: 0,
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.transparent,
+              content: AwesomeSnackbarContent(
+                title: 'Authentication Error',
+                message: state.message,
+                contentType: ContentType.failure,
               ),
             );
+            ScaffoldMessenger.of(context)
+              ..hideCurrentSnackBar()
+              ..showSnackBar(snackBar);
           }
         },
         child: Stack(
@@ -98,7 +109,13 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: primaryColor.withOpacity(0.15),
-                  blurRadius: 120,
+                  boxShadow: [
+                    BoxShadow(
+                      color: primaryColor.withOpacity(0.3),
+                      blurRadius: 120,
+                      spreadRadius: 40,
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -111,14 +128,21 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: accentPurple.withOpacity(0.12),
-                  blurRadius: 150,
+                  boxShadow: [
+                    BoxShadow(
+                      color: accentPurple.withOpacity(0.25),
+                      blurRadius: 150,
+                      spreadRadius: 50,
+                    ),
+                  ],
                 ),
               ),
             ),
 
             Center(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
                 child: Container(
                   width: isDesktop ? 460 : double.infinity,
                   decoration: BoxDecoration(
@@ -183,7 +207,8 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                         unselectedLabelColor: Colors.white.withOpacity(0.4),
                         indicatorSize: TabBarIndicatorSize.label,
                         dividerColor: Colors.transparent,
-                        indicatorPadding: const EdgeInsets.symmetric(horizontal: 16),
+                        indicatorPadding:
+                            const EdgeInsets.symmetric(horizontal: 16),
                         tabs: const [
                           Tab(text: 'Log In'),
                           Tab(text: 'Register'),
@@ -209,13 +234,13 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
             ),
 
             // Loading overlay
-            BlocBuilder<AuthCubit, AuthState>(
+            BlocBuilder<AuthBloc, AuthState>(
               builder: (context, state) {
                 if (state is AuthLoading) {
                   return Container(
                     color: Colors.black.withOpacity(0.6),
                     child: Center(
-                      child: LoadingAnimationWidget.staggeredDotsWave(
+                      child: const SpinKitThreeBounce(
                         color: primaryColor,
                         size: 60,
                       ),
@@ -242,7 +267,8 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
               controller: _emailLoginController,
               hint: 'Email address',
               icon: Icons.email_outlined,
-              validator: (v) => v != null && v.contains('@') ? null : 'Enter a valid email',
+              validator: (v) =>
+                  v != null && v.contains('@') ? null : 'Enter a valid email',
             ),
             const SizedBox(height: 16),
             _buildTextField(
@@ -250,7 +276,8 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
               hint: 'Password',
               icon: Icons.lock_outline,
               isPassword: true,
-              validator: (v) => v != null && v.length >= 6 ? null : 'Min 6 characters',
+              validator: (v) =>
+                  v != null && v.length >= 6 ? null : 'Min 6 characters',
             ),
             const Spacer(),
             SizedBox(
@@ -304,7 +331,8 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
               controller: _emailRegisterController,
               hint: 'Email address',
               icon: Icons.email_outlined,
-              validator: (v) => v != null && v.contains('@') ? null : 'Enter valid email',
+              validator: (v) =>
+                  v != null && v.contains('@') ? null : 'Enter valid email',
             ),
             const SizedBox(height: 12),
             _buildTextField(
@@ -312,7 +340,8 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
               hint: 'Password',
               icon: Icons.lock_outline,
               isPassword: true,
-              validator: (v) => v != null && v.length >= 6 ? null : 'Min 6 characters',
+              validator: (v) =>
+                  v != null && v.length >= 6 ? null : 'Min 6 characters',
             ),
             const SizedBox(height: 24),
             SizedBox(
@@ -355,10 +384,12 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
       decoration: InputDecoration(
         prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.3)),
         hintText: hint,
-        hintStyle: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 14),
+        hintStyle:
+            TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 14),
         filled: true,
         fillColor: Colors.black.withOpacity(0.2),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,

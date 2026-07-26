@@ -24,19 +24,32 @@ class Organization extends Equatable {
 
   factory Organization.fromFirestore(DocumentSnapshot doc) {
     final data = (doc.data() as Map<String, dynamic>?) ?? <String, dynamic>{};
+
+    final resolvedName = (data['organizationName'] as String?)?.trim().isNotEmpty == true
+        ? (data['organizationName'] as String).trim()
+        : (data['houseName'] as String?)?.trim().isNotEmpty == true
+            ? (data['houseName'] as String).trim()
+            : (data['name'] as String?)?.trim().isNotEmpty == true
+                ? (data['name'] as String).trim()
+                : 'Unnamed Organization';
+
+    final resolvedBusinessType = (data['businessType'] as String?) ??
+        (data['musicType'] as String?) ??
+        'nightclub';
+
     return Organization(
       id: doc.id,
-      name: data['name'] ?? '',
-      businessType: data['businessType'] ?? 'nightclub',
-      isActive: data['isActive'] ?? true,
-      createdAt: data['createdAt'] != null
+      name: resolvedName,
+      businessType: resolvedBusinessType,
+      isActive: data['isActive'] as bool? ?? true,
+      createdAt: data['createdAt'] != null && data['createdAt'] is Timestamp
           ? (data['createdAt'] as Timestamp).toDate()
           : DateTime.now(),
-      updatedAt: data['updatedAt'] != null
+      updatedAt: data['updatedAt'] != null && data['updatedAt'] is Timestamp
           ? (data['updatedAt'] as Timestamp).toDate()
           : DateTime.now(),
       locationName: data['locationName'] as String?,
-      logoUrl: data['logoUrl'] as String?,
+      logoUrl: (data['logoUrl'] as String?) ?? (data['bannerImageUrl'] as String?),
     );
   }
 
