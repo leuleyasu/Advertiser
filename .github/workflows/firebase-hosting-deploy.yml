@@ -27,6 +27,7 @@ jobs:
         run: flutter build web --release
 
       - name: 🚀 Deploy to Firebase Hosting (advertisersignange)
+        if: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_NIGHT_MUSIC_TOUGHT != '' }}"
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
