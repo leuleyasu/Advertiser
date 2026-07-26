@@ -4,7 +4,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'core/config/constants.dart';
 import 'core/services/auth_service.dart';
 import 'features/auth/bloc/auth_bloc.dart';
-import 'features/auth/bloc/auth_event.dart';
 import 'features/auth/bloc/auth_state.dart';
 import 'features/auth/presentation/screens/auth_screen.dart';
 import 'features/dashboard/presentation/screens/advertiser_dashboard_screen.dart';

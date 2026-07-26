@@ -166,6 +166,7 @@ class _AdvertiserDashboardView extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
