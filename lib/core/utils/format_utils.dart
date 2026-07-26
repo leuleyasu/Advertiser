@@ -9,9 +9,9 @@ class FormatUtils {
     return '$hourStr:$minuteStr';
   }
 
-  /// Formats double as currency string, e.g. $12.50
+  /// Formats double as currency string in ETB, e.g. 12.50 ETB
   static String formatCurrency(double amount) {
-    return '\$${amount.toStringAsFixed(2)}';
+    return '${amount.toStringAsFixed(2)} ETB';
   }
 
   /// Formats DateRange into a readable string

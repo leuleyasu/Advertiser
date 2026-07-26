@@ -18,7 +18,7 @@ class DashboardMetricsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(symbol: '\$');
+    final currencyFormat = NumberFormat.currency(symbol: 'ETB ', decimalDigits: 2);
 
     return BlocBuilder<DashboardCubit, DashboardState>(
       builder: (context, state) {

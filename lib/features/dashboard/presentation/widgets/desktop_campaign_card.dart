@@ -127,7 +127,7 @@ class DesktopCampaignCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  '\$${campaign.budget.toStringAsFixed(2)}',
+                  '${campaign.budget.toStringAsFixed(2)} ETB',
                   style: const TextStyle(
                       color: Colors.greenAccent,
                       fontSize: 18,
