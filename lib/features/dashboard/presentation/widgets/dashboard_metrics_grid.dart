@@ -18,7 +18,8 @@ class DashboardMetricsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(symbol: 'ETB ', decimalDigits: 2);
+    final currencyFormat =
+        NumberFormat.currency(symbol: 'ETB ', decimalDigits: 2);
 
     return BlocBuilder<DashboardCubit, DashboardState>(
       builder: (context, state) {
@@ -46,7 +47,7 @@ class DashboardMetricsGrid extends StatelessWidget {
             MetricCard(
               title: 'Spent Budget',
               value: currencyFormat.format(metrics['budgetSpent'] ?? 0.0),
-              icon: Icons.monetization_on_outlined,
+              icon: Icons.money,
               color: Colors.amberAccent,
             ),
             MetricCard(

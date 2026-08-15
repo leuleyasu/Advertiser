@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -59,7 +58,78 @@ class AdCampaignService {
     });
   }
 
-  /// Create a new campaign
+  /// Create a multi-venue campaign distributed to all selected organizations
+  Future<void> createMultiVenueCampaign({
+    required String title,
+    required String caption,
+    required List<Organization> targetOrganizations,
+    required String mediaUrl,
+    required String mediaType,
+    String packageTier = 'monthly',
+    required DateTime startDate,
+    required DateTime endDate,
+    required List<int> daysOfWeek,
+    required String startTime,
+    required String endTime,
+    required int displayDurationSeconds,
+    required int frequencyMinutes,
+    required double totalBudget,
+  }) async {
+    debugPrint('🚀 AdCampaignService.createMultiVenueCampaign() called');
+    debugPrint(
+        '📝 Title: $title, Target Orgs: ${targetOrganizations.length}, Total Budget: $totalBudget');
+    final userId = currentUserId;
+    if (userId == null) {
+      debugPrint(
+          '❌ AdCampaignService: User not authenticated, throwing exception');
+      throw Exception('User must be logged in to create a campaign');
+    }
+
+    if (targetOrganizations.isEmpty) {
+      throw Exception('At least one target venue must be selected.');
+    }
+
+    final batch = _firestore.batch();
+    final campaignGroupId =
+        'grp_${DateTime.now().millisecondsSinceEpoch}_${targetOrganizations.length}';
+    final budgetPerOrg = totalBudget / targetOrganizations.length;
+
+    for (final org in targetOrganizations) {
+      final docRef = _firestore.collection(_campaignsCollection).doc();
+      final campaign = AdCampaign(
+        id: docRef.id,
+        campaignGroupId: campaignGroupId,
+        advertiserId: userId,
+        organizationId: org.id,
+        organizationName: org.name,
+        title: title,
+        mediaUrl: mediaUrl,
+        mediaType: mediaType,
+        caption: caption,
+        packageTier: packageTier,
+        startDate: startDate,
+        endDate: endDate,
+        daysOfWeek: daysOfWeek,
+        startTime: startTime,
+        endTime: endTime,
+        displayDurationSeconds: displayDurationSeconds,
+        frequencyMinutes: frequencyMinutes,
+        status: CampaignStatus.pendingApproval,
+        budget: budgetPerOrg,
+        createdAt: DateTime.now(),
+      );
+
+      debugPrint(
+          '💾 AdCampaignService: Queueing batch campaign for org ${org.name} (${docRef.id})');
+      batch.set(docRef, campaign.toJson());
+    }
+
+    await batch.commit();
+    debugPrint(
+        '✅ AdCampaignService: Successfully distributed campaign across ${targetOrganizations.length} venues');
+  }
+
+  /// Create a new single-venue campaign (backward compatibility)
   Future<void> createCampaign({
     required String title,
     required String caption,

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../../../../core/config/constants.dart';
+import '../../../../core/models/organization_model.dart';
 import '../../../../core/services/ad_campaign_service.dart';
 
 import '../widgets/wizard_step_progress.dart';
@@ -12,22 +13,30 @@ import '../widgets/campaign_info_step.dart';
 import '../widgets/campaign_creative_step.dart';
 import '../widgets/campaign_schedule_step.dart';
 import '../widgets/campaign_summary_step.dart';
-import '../widgets/laki_payment_dialog.dart';
+import '../widgets/chapa_payment_dialog.dart';
 
 class CreateCampaignWizard extends StatelessWidget {
   final AdCampaignService campaignService;
   final VoidCallback onComplete;
+  final Organization? initialOrg;
+  final List<Organization>? initialOrgs;
 
   const CreateCampaignWizard({
     super.key,
     required this.campaignService,
     required this.onComplete,
+    this.initialOrg,
+    this.initialOrgs,
   });
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => CampaignCreationBloc(campaignService),
+      create: (_) => CampaignCreationBloc(
+        campaignService,
+        initialOrg: initialOrg,
+        initialOrgs: initialOrgs,
+      ),
       child: _CreateCampaignWizardView(onComplete: onComplete),
     );
   }
@@ -79,8 +88,8 @@ class _CreateCampaignWizardViewState extends State<_CreateCampaignWizardView> {
         final screenSize = MediaQuery.of(context).size;
         final isMobile = screenSize.width < 700;
 
-        final dialogWidth = isMobile ? screenSize.width * 0.94 : 700.0;
-        final dialogHeight = isMobile ? screenSize.height * 0.88 : 600.0;
+        final dialogWidth = isMobile ? screenSize.width * 0.94 : 720.0;
+        final dialogHeight = isMobile ? screenSize.height * 0.88 : 620.0;
         final horizontalPadding = isMobile ? 16.0 : 32.0;
 
         return Dialog(
@@ -96,7 +105,7 @@ class _CreateCampaignWizardViewState extends State<_CreateCampaignWizardView> {
             height: dialogHeight,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.white.withOpacity(0.06)),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
             ),
             child: Stack(
               children: [
@@ -111,13 +120,27 @@ class _CreateCampaignWizardViewState extends State<_CreateCampaignWizardView> {
                               color: primaryColor, size: 28),
                           const SizedBox(width: 12),
                           Expanded(
-                            child: Text(
-                              'Create Ad Campaign',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: isMobile ? 17 : 20,
-                                  fontWeight: FontWeight.bold),
-                              overflow: TextOverflow.ellipsis,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Create Multi-Venue Ad Campaign',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: isMobile ? 16 : 19,
+                                      fontWeight: FontWeight.bold),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Distribute your brand video & banners across venue screens',
+                                  style: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.5),
+                                    fontSize: 11,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
                             ),
                           ),
                           IconButton(
@@ -128,7 +151,7 @@ class _CreateCampaignWizardViewState extends State<_CreateCampaignWizardView> {
                         ],
                       ),
                     ),
-                    Divider(color: Colors.white.withOpacity(0.06), height: 1),
+                    Divider(color: Colors.white.withValues(alpha: 0.06), height: 1),
 
                     // Step progress
                     WizardStepProgress(
@@ -152,7 +175,7 @@ class _CreateCampaignWizardViewState extends State<_CreateCampaignWizardView> {
                       ),
                     ),
 
-                    Divider(color: Colors.white.withOpacity(0.06), height: 1),
+                    Divider(color: Colors.white.withValues(alpha: 0.06), height: 1),
 
                     // Footer action buttons
                     Padding(
@@ -164,7 +187,7 @@ class _CreateCampaignWizardViewState extends State<_CreateCampaignWizardView> {
                             OutlinedButton(
                               style: OutlinedButton.styleFrom(
                                 side: BorderSide(
-                                    color: Colors.white.withOpacity(0.2)),
+                                    color: Colors.white.withValues(alpha: 0.2)),
                                 foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12)),
@@ -191,7 +214,7 @@ class _CreateCampaignWizardViewState extends State<_CreateCampaignWizardView> {
                             onPressed: () =>
                                 _onNextPressed(context, state, bloc),
                             child: Text(state.currentStep == 3
-                                ? 'Pay & Submit Campaign'
+                                ? 'Pay & Launch Campaign (Chapa)'
                                 : 'Continue'),
                           ),
                         ],
@@ -202,10 +225,10 @@ class _CreateCampaignWizardViewState extends State<_CreateCampaignWizardView> {
                 if (isLoading)
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.6),
+                      color: Colors.black.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(24),
                     ),
-                    child: Center(
+                    child: const Center(
                       child: SpinKitThreeBounce(color: primaryColor, size: 30),
                     ),
                   ),
@@ -220,6 +243,15 @@ class _CreateCampaignWizardViewState extends State<_CreateCampaignWizardView> {
   void _onNextPressed(BuildContext context, CampaignCreationState state,
       CampaignCreationBloc bloc) {
     if (state.currentStep == 0) {
+      if (state.selectedOrgs.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please select at least one target venue.'),
+            backgroundColor: Colors.orangeAccent,
+          ),
+        );
+        return;
+      }
       if (_formKeyInfo.currentState!.validate()) {
         bloc.add(const NextStepEvent());
       }
@@ -241,19 +273,19 @@ class _CreateCampaignWizardViewState extends State<_CreateCampaignWizardView> {
         bloc.add(const NextStepEvent());
       }
     } else {
-      // Step 3: Trigger LakiPay Direct Checkout Dialog
-      showDialog(
+      // Step 3: Open Chapa Inline / Direct Payment Checkout
+      final budget = state.calculatedBudget > 0 ? state.calculatedBudget : 1.0;
+      ChapaPaymentDialog.show(
         context: context,
-        builder: (ctx) => LakiPaymentDialog(
-          amountETB: state.calculatedBudget,
-          campaignTitle: _titleController.text.trim(),
-          onPaymentSuccess: (txRef, medium) {
-            bloc.add(SubmitCampaignEvent(
-              title: _titleController.text,
-              caption: _captionController.text,
-            ));
-          },
-        ),
+        amountETB: budget,
+        campaignTitle: _titleController.text.trim(),
+        venueCount: state.selectedOrgs.length,
+        onPaymentSuccess: (txRef) {
+          bloc.add(SubmitCampaignEvent(
+            title: _titleController.text.trim(),
+            caption: _captionController.text.trim(),
+          ));
+        },
       );
     }
   }
@@ -266,9 +298,11 @@ class _CreateCampaignWizardViewState extends State<_CreateCampaignWizardView> {
           formKey: _formKeyInfo,
           titleController: _titleController,
           captionController: _captionController,
-          selectedOrg: state.selectedOrg,
+          selectedOrgs: state.selectedOrgs,
           organizations: state.organizations,
-          onOrgChanged: (org) => bloc.add(SelectOrganizationEvent(org)),
+          onToggleOrg: (org) => bloc.add(ToggleOrganizationEvent(org)),
+          onSelectAll: () => bloc.add(const SelectAllOrganizationsEvent()),
+          onClearAll: () => bloc.add(const DeselectAllOrganizationsEvent()),
         );
       case 1:
         return CampaignCreativeStep(
@@ -282,10 +316,13 @@ class _CreateCampaignWizardViewState extends State<_CreateCampaignWizardView> {
         );
       case 2:
         return CampaignScheduleStep(
+          packageTier: state.packageTier,
+          selectedOrgs: state.selectedOrgs,
           dateRange: state.dateRange,
           startTime: state.startTime,
           endTime: state.endTime,
           selectedDays: state.selectedDays,
+          onSelectPackageTier: (tier) => bloc.add(SelectPackageTierEvent(tier)),
           onSelectDateRange: () async {
             final picked = await showDateRangePicker(
               context: context,
@@ -320,7 +357,8 @@ class _CreateCampaignWizardViewState extends State<_CreateCampaignWizardView> {
           uploadedMediaUrl: state.uploadedMediaUrl,
           mediaType: state.mediaType,
           title: _titleController.text,
-          organizationName: state.selectedOrg?.name ?? '',
+          selectedOrgs: state.selectedOrgs,
+          packageTier: state.packageTier,
           dateRange: state.dateRange,
           startTime: state.startTime,
           endTime: state.endTime,

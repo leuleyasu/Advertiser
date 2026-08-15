@@ -179,19 +179,19 @@ class _AuthScreenState extends State<AuthScreen>
                             ),
                             const SizedBox(height: 16),
                             const Text(
-                              'Night Track Ads',
+                              'ayuStream',
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 26,
+                                fontSize: 28,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 0.5,
                               ),
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Grow your brand on the big screens',
+                              'Grow your brand across venue screen networks',
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.5),
+                                color: Colors.white.withValues(alpha: 0.5),
                                 fontSize: 14,
                               ),
                             ),
