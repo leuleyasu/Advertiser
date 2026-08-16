@@ -11,6 +11,7 @@ enum CampaignStatus {
 
 class AdCampaign extends Equatable {
   final String id;
+  final String? campaignGroupId;
   final String advertiserId;
   final String organizationId;
   final String? organizationName;
@@ -18,6 +19,7 @@ class AdCampaign extends Equatable {
   final String mediaUrl;
   final String mediaType; // 'image' or 'video'
   final String caption;
+  final String packageTier; // 'weekly', 'monthly', 'quarterly', 'custom'
   final DateTime startDate;
   final DateTime endDate;
   final List<int> daysOfWeek; // 1 = Mon, 7 = Sun
@@ -33,6 +35,7 @@ class AdCampaign extends Equatable {
 
   const AdCampaign({
     required this.id,
+    this.campaignGroupId,
     required this.advertiserId,
     required this.organizationId,
     this.organizationName,
@@ -40,6 +43,7 @@ class AdCampaign extends Equatable {
     required this.mediaUrl,
     required this.mediaType,
     required this.caption,
+    this.packageTier = 'monthly',
     required this.startDate,
     required this.endDate,
     required this.daysOfWeek,
@@ -56,6 +60,7 @@ class AdCampaign extends Equatable {
 
   AdCampaign copyWith({
     String? id,
+    String? campaignGroupId,
     String? advertiserId,
     String? organizationId,
     String? organizationName,
@@ -63,6 +68,7 @@ class AdCampaign extends Equatable {
     String? mediaUrl,
     String? mediaType,
     String? caption,
+    String? packageTier,
     DateTime? startDate,
     DateTime? endDate,
     List<int>? daysOfWeek,
@@ -78,6 +84,7 @@ class AdCampaign extends Equatable {
   }) {
     return AdCampaign(
       id: id ?? this.id,
+      campaignGroupId: campaignGroupId ?? this.campaignGroupId,
       advertiserId: advertiserId ?? this.advertiserId,
       organizationId: organizationId ?? this.organizationId,
       organizationName: organizationName ?? this.organizationName,
@@ -85,6 +92,7 @@ class AdCampaign extends Equatable {
       mediaUrl: mediaUrl ?? this.mediaUrl,
       mediaType: mediaType ?? this.mediaType,
       caption: caption ?? this.caption,
+      packageTier: packageTier ?? this.packageTier,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       daysOfWeek: daysOfWeek ?? this.daysOfWeek,
@@ -114,6 +122,7 @@ class AdCampaign extends Equatable {
 
     return AdCampaign(
       id: doc.id,
+      campaignGroupId: data['campaignGroupId'] as String?,
       advertiserId: data['advertiserId'] ?? '',
       organizationId: data['organizationId'] ?? '',
       organizationName: data['organizationName'],
@@ -121,6 +130,7 @@ class AdCampaign extends Equatable {
       mediaUrl: data['mediaUrl'] ?? '',
       mediaType: data['mediaType'] ?? 'image',
       caption: data['caption'] ?? '',
+      packageTier: data['packageTier'] ?? 'monthly',
       startDate: (data['startDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
       endDate: (data['endDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
       daysOfWeek: List<int>.from(data['daysOfWeek'] ?? []),
@@ -138,6 +148,7 @@ class AdCampaign extends Equatable {
 
   Map<String, dynamic> toJson() {
     return {
+      'campaignGroupId': campaignGroupId,
       'advertiserId': advertiserId,
       'organizationId': organizationId,
       'organizationName': organizationName,
@@ -145,6 +156,7 @@ class AdCampaign extends Equatable {
       'mediaUrl': mediaUrl,
       'mediaType': mediaType,
       'caption': caption,
+      'packageTier': packageTier,
       'startDate': Timestamp.fromDate(startDate),
       'endDate': Timestamp.fromDate(endDate),
       'daysOfWeek': daysOfWeek,
@@ -185,6 +197,7 @@ class AdCampaign extends Equatable {
   @override
   List<Object?> get props => [
         id,
+        campaignGroupId,
         advertiserId,
         organizationId,
         organizationName,
@@ -192,6 +205,7 @@ class AdCampaign extends Equatable {
         mediaUrl,
         mediaType,
         caption,
+        packageTier,
         startDate,
         endDate,
         daysOfWeek,

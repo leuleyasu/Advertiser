@@ -11,9 +11,19 @@ class CampaignCreationState extends Equatable {
   final String? errorMessage;
   final String? snackMessage;
 
-  // Step 1: Info & Org
-  final Organization? selectedOrg;
+  // Step 1: Info & Orgs (Multi-Venue Support)
+  final List<Organization> selectedOrgs;
   final List<Organization> organizations;
+
+  Organization? get selectedOrg =>
+      selectedOrgs.isNotEmpty ? selectedOrgs.first : null;
+
+  bool isOrgSelected(Organization org) =>
+      selectedOrgs.any((o) => o.id == org.id);
+
+  String get selectedOrgNames => selectedOrgs.isEmpty
+      ? 'No venues selected'
+      : selectedOrgs.map((o) => o.name).join(', ');
 
   // Step 2: Media Creative
   final PlatformFile? pickedFile;
@@ -21,7 +31,8 @@ class CampaignCreationState extends Equatable {
   final String? uploadedMediaUrl;
   final String mediaType;
 
-  // Step 3: Schedule
+  // Step 3: Schedule & Package
+  final String packageTier; // 'weekly', 'monthly', 'quarterly', 'custom'
   final DateTimeRange? dateRange;
   final TimeOfDay startTime;
   final TimeOfDay endTime;
@@ -37,12 +48,13 @@ class CampaignCreationState extends Equatable {
     this.status = CampaignCreationStatus.initial,
     this.errorMessage,
     this.snackMessage,
-    this.selectedOrg,
+    this.selectedOrgs = const [],
     this.organizations = const [],
     this.pickedFile,
     this.isUploading = false,
     this.uploadedMediaUrl,
     this.mediaType = 'image',
+    this.packageTier = 'monthly',
     this.dateRange,
     this.startTime = const TimeOfDay(hour: 18, minute: 0),
     this.endTime = const TimeOfDay(hour: 23, minute: 59),
@@ -57,12 +69,14 @@ class CampaignCreationState extends Equatable {
     CampaignCreationStatus? status,
     String? errorMessage,
     String? snackMessage,
+    List<Organization>? selectedOrgs,
     Organization? selectedOrg,
     List<Organization>? organizations,
     PlatformFile? pickedFile,
     bool? isUploading,
     String? uploadedMediaUrl,
     String? mediaType,
+    String? packageTier,
     DateTimeRange? dateRange,
     TimeOfDay? startTime,
     TimeOfDay? endTime,
@@ -73,17 +87,23 @@ class CampaignCreationState extends Equatable {
     bool clearPickedFile = false,
     bool clearUploadedMediaUrl = false,
   }) {
+    List<Organization> resolvedSelectedOrgs = selectedOrgs ?? this.selectedOrgs;
+    if (selectedOrg != null && selectedOrgs == null) {
+      resolvedSelectedOrgs = [selectedOrg];
+    }
+
     return CampaignCreationState(
       currentStep: currentStep ?? this.currentStep,
       status: status ?? this.status,
       errorMessage: errorMessage,
       snackMessage: snackMessage,
-      selectedOrg: selectedOrg ?? this.selectedOrg,
+      selectedOrgs: resolvedSelectedOrgs,
       organizations: organizations ?? this.organizations,
       pickedFile: clearPickedFile ? null : (pickedFile ?? this.pickedFile),
       isUploading: isUploading ?? this.isUploading,
       uploadedMediaUrl: clearUploadedMediaUrl ? null : (uploadedMediaUrl ?? this.uploadedMediaUrl),
       mediaType: mediaType ?? this.mediaType,
+      packageTier: packageTier ?? this.packageTier,
       dateRange: dateRange ?? this.dateRange,
       startTime: startTime ?? this.startTime,
       endTime: endTime ?? this.endTime,
@@ -100,12 +120,13 @@ class CampaignCreationState extends Equatable {
         status,
         errorMessage,
         snackMessage,
-        selectedOrg,
+        selectedOrgs,
         organizations,
         pickedFile,
         isUploading,
         uploadedMediaUrl,
         mediaType,
+        packageTier,
         dateRange,
         startTime,
         endTime,

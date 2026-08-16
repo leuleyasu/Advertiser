@@ -29,6 +29,30 @@ class SelectOrganizationEvent extends CampaignCreationEvent {
   List<Object?> get props => [organization];
 }
 
+class ToggleOrganizationEvent extends CampaignCreationEvent {
+  final Organization organization;
+  const ToggleOrganizationEvent(this.organization);
+
+  @override
+  List<Object?> get props => [organization];
+}
+
+class SelectAllOrganizationsEvent extends CampaignCreationEvent {
+  const SelectAllOrganizationsEvent();
+}
+
+class DeselectAllOrganizationsEvent extends CampaignCreationEvent {
+  const DeselectAllOrganizationsEvent();
+}
+
+class SelectOrganizationsListEvent extends CampaignCreationEvent {
+  final List<Organization> organizations;
+  const SelectOrganizationsListEvent(this.organizations);
+
+  @override
+  List<Object?> get props => [organizations];
+}
+
 class PickFileEvent extends CampaignCreationEvent {
   const PickFileEvent();
 }
@@ -71,6 +95,14 @@ class ToggleDayEvent extends CampaignCreationEvent {
 
   @override
   List<Object?> get props => [dayInt];
+}
+
+class SelectPackageTierEvent extends CampaignCreationEvent {
+  final String packageTier;
+  const SelectPackageTierEvent(this.packageTier);
+
+  @override
+  List<Object?> get props => [packageTier];
 }
 
 class NextStepEvent extends CampaignCreationEvent {

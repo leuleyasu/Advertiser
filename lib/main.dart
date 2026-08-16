@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
     return BlocProvider<AuthBloc>(
       create: (context) => AuthBloc(authService),
       child: MaterialApp(
-        title: 'Night Track Advertiser',
+        title: 'ayuStream - Advertiser Portal',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           brightness: Brightness.dark,
